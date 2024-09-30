@@ -3,7 +3,7 @@ import json
 
 url = "http://127.0.0.1:7979/userAuth"
 
-response = requests.get(url,params={"username": "larry", "password": "securepassword"})
+response = requests.get(url,params={"username": "kevin", "password": "securepassword"})
 
 print(response.status_code)
 print(response.headers)
