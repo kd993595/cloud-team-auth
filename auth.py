@@ -7,7 +7,11 @@ import sqlite3
 
 from jwtmodel import JWTUser,InvalidUserException
 from authModel import AuthModel
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class UserItem(BaseModel):
     username: str
@@ -23,6 +27,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:8080",
+    "http://localhost:5173",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -48,16 +53,15 @@ async def getToken(username:str, password:str):
 
     return JSONResponse(content={"token": maybeUser.token})
 
-@app.post("/userAuth", response_model=UserOut,status_code=201)
-async def createUser(user:UserItem, response: Response):
+@app.post("/userAuth", response_model=UserOut, status_code=201)
+async def createUser(user: UserItem, response: Response):
+    logger.debug(f"Received user data: {user}")
     try:
-        mainAuth.insertUser(user.username,user.email,user.password)
+        mainAuth.insertUser(user.username, user.email, user.password)
     except ValueError:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return {"msg":"invalid input"}
-    except:
-        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        return {"msg":"cannot create user"}
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"msg": "invalid input"})
+    except Exception:
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"msg": "cannot create user"})
 
     return user
 
