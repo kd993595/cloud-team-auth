@@ -14,7 +14,7 @@ class UserItem(BaseModel):
     email: str
     password: str
 
-class UserOut(BaseModel):
+class UserToken(BaseModel):
     username: str
     email: str
 
@@ -48,7 +48,7 @@ async def getToken(username:str, password:str):
 
     return JSONResponse(content={"token": maybeUser.token})
 
-@app.post("/userAuth", response_model=UserOut,status_code=201)
+@app.post("/userAuth", response_model=UserToken,status_code=201)
 async def createUser(user:UserItem, response: Response):
     try:
         mainAuth.insertUser(user.username,user.email,user.password)
